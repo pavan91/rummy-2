@@ -1,0 +1,58 @@
+<mat-card class="login-form">
+  <mat-spinner *ngIf="isLoading"></mat-spinner>
+  <form #lobbyForm="ngForm" *ngIf="!isLoading">
+    <div class="login-options">
+      <button
+        mat-raised-button
+        (click)="onJoinAGame(newGameName.value, playersName.value)"
+        class="login-to-game-btn"
+      >
+        התחבר למשחק
+      </button>
+      <button
+        mat-raised-button
+        (click)="
+          onCreateNewGame(
+            newGameName.value,
+            playersAmount.value,
+            playersName.value
+          )
+        "
+        class="create-new-game-btn"
+      >
+        צור משחק
+      </button>
+      <div>
+        <input
+          type="text"
+          name="newGameName"
+          class="new-game-name"
+          placeholder="בחר שם למשחק"
+          matInput
+          #newGameName
+        />
+      </div>
+      <div>
+        <input
+          type="text"
+          name="playersAmount"
+          class="new-game-name"
+          placeholder="בחר כמות שחקנים"
+          matInput
+          #playersAmount
+        />
+      </div>
+      <div>
+        <input
+          type="text"
+          name="playerName"
+          class="new-game-name"
+          placeholder="הכנס את שמך"
+          matInput
+          #playersName
+          [ngModel]="playerName"
+        />
+      </div>
+    </div>
+  </form>
+</mat-card>
