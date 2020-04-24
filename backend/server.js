@@ -1,20 +1,16 @@
 const app = require("./app");
 const debug = require("debug")("Rummy");
 const http = require("http");
-const lobbyController = require("./controllers/lobby");
-
-// const socketEvents = require("./socket-events");
+const gameController = require("./controllers/game");
 
 const normalizePort = (val) => {
   var port = parseInt(val, 10);
 
   if (isNaN(port)) {
-    // named pipe
     return val;
   }
 
   if (port >= 0) {
-    // port number
     return port;
   }
 
@@ -51,27 +47,8 @@ app.set("port", port);
 
 const server = http.createServer(app);
 const io = require("socket.io")(server);
-const user = require("./model/user");
 
-io.on("connection", (socket) => {
-  user.login(socket);
-  socket.on("disconnect", () => {
-    user.logout(socket.id);
-  });
-
-  socket.on("new-game", (gameName, playersAmount, creatorPlayerName) => {
-    lobbyController.createNewGame(
-      gameName,
-      playersAmount,
-      creatorPlayerName,
-      socket.id
-    );
-  });
-
-  socket.on("join-a-game", (gameName, playerName) => {
-    lobbyController.joinPlayer(gameName, playerName, socket.id);
-  });
-});
+gameController.setSocket(io);
 
 server.on("error", onError);
 server.on("listening", onListening);

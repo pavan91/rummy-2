@@ -1,26 +1,24 @@
-var cards = require("./cards.json");
-
 module.exports = class GameData {
   playersCards = new Map();
-  cardsNumEachPlayer = new Map();
   startCardsNum = 7;
-  openingCard = [];
+  discardPile = [];
   deck;
   playerTurn = 0;
+  cards;
 
-  constructor(playersInGame) {
+  constructor(playersInGame, cards) {
+    this.cards = cards;
     shuffle(cards);
     shuffle(playersInGame);
 
     for (var player of playersInGame) {
-      var currPlayerCards = cards.slice(0, this.startCardsNum);
-      cards = cards.slice(this.startCardsNum);
+      var currPlayerCards = this.cards.slice(0, this.startCardsNum);
+      this.cards = this.cards.slice(this.startCardsNum);
       this.playersCards.set(player.sessionId, currPlayerCards);
-      this.cardsNumEachPlayer.set(player.name, this.startCardsNum);
     }
 
-    this.openingCard[0] = cards.pop();
-    this.deck = cards;
+    this.discardPile[0] = this.cards.pop();
+    this.deck = this.cards;
   }
 
   isPlaying(playerSessionId) {
@@ -29,15 +27,31 @@ module.exports = class GameData {
     );
   }
 
+  getNextPlayer(playerSid) {
+    let players = this.playersCards.keys();
+    let currPlayer = players.next();
+    while (currPlayer) {
+      if (currPlayer.value === playerSid) {
+        let nextPlayer = players.next();
+        if (nextPlayer && nextPlayer.value) {
+          return nextPlayer.value;
+        } else {
+          return this.playersCards.keys().next().value;
+        }
+      }
+      currPlayer = players.next();
+    }
+  }
+
   getDeck() {
     return this.deck;
   }
 
-  getOpeningCards() {
-    return this.openingCard;
+  getDiscardPile() {
+    return this.discardPile;
   }
 
-  getPlayerCard(playerSessionId) {
+  getPlayerCards(playerSessionId) {
     if (!playerSessionId) {
       return null;
     } else {
@@ -45,8 +59,25 @@ module.exports = class GameData {
     }
   }
 
-  getOtherPlayersCardsNum() {
-    return [...this.cardsNumEachPlayer];
+  removeCardOfPlayer(playerSessionId, card) {
+    let indexOfCard = this.playersCards.get(playerSessionId).indexOf(card);
+    this.playersCards.get(playerSessionId).splice(indexOfCard, 1);
+  }
+
+  addCardToPlayer(playerSessionId, card) {
+    this.playersCards
+      .get(playerSessionId)
+      .push({ suit: card.suit, value: card.value });
+  }
+
+  getPlayerCardsNum(sid) {
+    return this.playersCards.get(sid).length;
+  }
+
+  removeCardOfDeck(cardIndex) {
+    let card = this.deck[cardIndex];
+    this.deck.splice(cardIndex, 1);
+    return card;
   }
 };
 
@@ -57,7 +88,7 @@ function shuffle(array) {
 
   while (0 !== currentIndex) {
     randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex -= 1;
+    currentIndex--;
     temporaryValue = array[currentIndex];
     array[currentIndex] = array[randomIndex];
     array[randomIndex] = temporaryValue;

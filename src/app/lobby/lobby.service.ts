@@ -5,7 +5,13 @@ import { Router } from "@angular/router";
 
 @Injectable({ providedIn: "root" })
 export class LobbyService {
+  public playerName;
+
   constructor(private socketService: SocketioService, private router: Router) {
+    let name = localStorage.getItem("playerName");
+    if (name) {
+      this.playerName = name;
+    }
     this.socketService.getSocket().on("start-game", (gameId: string) => {
       this.router.navigate(["/game"], {
         queryParams: { id: gameId },

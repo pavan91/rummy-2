@@ -9,20 +9,15 @@ import { LobbyService } from "./lobby.service";
 })
 export class LobbyComponent implements OnInit {
   isLoading = false;
-  playerName = "";
-  constructor(
-    private socketService: SocketioService,
-    private lobbyService: LobbyService
-  ) {}
+  constructor(private lobbyService: LobbyService) {}
+  playerName;
 
   ngOnInit() {
-    let playerName = localStorage.getItem("playerName");
-    if (playerName) {
-      this.playerName = playerName;
-    }
+    this.playerName = this.lobbyService.playerName;
   }
 
   savePlayerName(playerName) {
+    this.lobbyService.playerName = playerName;
     localStorage.setItem("playerName", playerName);
   }
 
